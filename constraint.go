@@ -171,12 +171,3 @@ func (c *Constraint) Solved(cell *Cell) (changed bool, _ error) {
 
 	return changed, nil
 }
-
-func (c *Constraint) Destroy() {
-	for i := range c.view {
-		c.view[i] = nil
-	}
-	for i := range c.constrained {
-		c.constrained[i] = nil
-	}
-}

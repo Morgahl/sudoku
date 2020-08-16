@@ -123,15 +123,4 @@ func (p Puzzle) IsSolved() bool {
 	return true
 }
 
-func (p *Puzzle) Destroy() {
-	for i := range p.cells {
-		p.cells[i].Destroy()
-		p.cells[i] = nil
-	}
-	for i := range p.constraints {
-		p.constraints[i].Destroy()
-		p.constraints[i] = nil
-	}
-}
-
 var PuzzleErrorInvalidCell = errors.New("puzzle: Requested Cell is Invalid")

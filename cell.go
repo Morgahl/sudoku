@@ -89,13 +89,4 @@ func (c *Cell) Clear(valuesToClear []uint8) (changed bool, _ error) {
 	return changed, nil
 }
 
-func (c *Cell) Destroy() {
-	for i := range c.constrainedMemberOf {
-		c.constrainedMemberOf[i] = nil
-	}
-	for i := range c.viewMemberOf {
-		c.viewMemberOf[i] = nil
-	}
-}
-
 var CellErrorAllValuesCleared = errors.New("cell: All Values Cleared: Likely indicates an invalid Puzzle.")
