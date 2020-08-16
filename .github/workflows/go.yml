@@ -27,8 +27,8 @@ jobs:
       - name: Build
         run: go build -v .
 
-      - name: Test
-        run: go test -v ./...
-
       - name: Benchmark
         run: go test -v -run="$^" -bench="." -benchmem -count="1" -cpu="1,2,4,8,16,32,64,128,256,512,1024" ./...
+
+      - name: Test
+        run: go test -v ./...
