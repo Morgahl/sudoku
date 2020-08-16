@@ -40,6 +40,12 @@ func NewPuzzleFromState(state State) (p *Puzzle, err error) {
 
 	for y, row := range state.Puzzle {
 		for x, val := range row {
+			if val == 0 {
+				continue
+			}
+			// offset down into indexable representation
+			val--
+
 			p.Set(uint8(x), uint8(y), val)
 		}
 	}
@@ -57,7 +63,12 @@ func (p *Puzzle) State() (s State, err error) {
 			if cell, err = p.At(x, y); err != nil {
 				return
 			}
-			s.Puzzle[y][x] = cell.val
+			val := cell.val
+			if cell.solved {
+				// offset up into human representation
+				val++
+			}
+			s.Puzzle[y][x] = val
 		}
 	}
 
@@ -100,6 +111,16 @@ func (p *Puzzle) Set(x, y, v uint8) (err error) {
 	}
 
 	return cell.Solve(v)
+}
+
+func (p Puzzle) IsSolved() bool {
+	for i := range p.cells {
+		if !p.cells[i].solved {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (p *Puzzle) Destroy() {

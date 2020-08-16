@@ -1,22 +1,32 @@
-package sudoku_test
+package sudoku
 
 import (
 	"testing"
-
-	"github.com/curlymon/sudoku"
 )
 
-func testNewPuzzleFromState(t *testing.T, state sudoku.State) {
-	if _, err := sudoku.NewPuzzleFromState(state); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestHardPuzzle(t *testing.T) {
-	state, err := sudok.LoadStateFromFile("./hard.json")
+func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
+	state, err := LoadStateFromFile(stateFile)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testNewPuzzleFromState(t, state)
+	p, err := NewPuzzleFromState(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer p.Destroy()
+
+	if !p.IsSolved() {
+		t.Fatal("Puzzle was not solved...")
+	}
+
+	afterSolveState, _ := p.State()
+	t.Logf("%#v", afterSolveState)
+}
+
+func TestEasyyPuzzle(t *testing.T) {
+	testNewPuzzleFromStateFile(t, "./easy.json")
+}
+func TestHardPuzzle(t *testing.T) {
+	testNewPuzzleFromStateFile(t, "./hard.json")
 }
