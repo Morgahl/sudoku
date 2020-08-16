@@ -16,6 +16,7 @@ func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("Start State:%s", state)
 
 	p, err := NewPuzzleFromState(state)
 	if err != nil {
@@ -23,11 +24,11 @@ func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
 	}
 
 	if !p.IsSolved() {
-		t.Fatal("Puzzle was not solved...")
+		t.Error("Puzzle was not solved...")
 	}
 
 	afterSolveState, _ := p.State()
-	t.Logf("%s", afterSolveState)
+	t.Logf("End State:%s", afterSolveState)
 }
 
 func BenchmarkEasyyPuzzle(b *testing.B) {
