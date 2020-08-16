@@ -2,35 +2,33 @@ name: Go
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.14
+        id: go
 
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.14
-      id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
 
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
+      - name: Build
+        run: go build -v .
 
-    - name: Build
-      run: go build -v .
+      - name: Test
+        run: go test -v ./...
 
-    - name: Test
-      run: go test -v ./...
-
-    - name: Benchmark
-      run: go test -v -run="$^" -bench="." -benchmem ./...
+      - name: Benchmark
+        run: go test -v -run="$^" -bench="." -benchmem -count="1" -cpu="1,2,4,8,16,32,64,128,256,512,1024" ./...
