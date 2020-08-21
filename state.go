@@ -1,4 +1,4 @@
-package sudoku
+package puzzle
 
 import (
 	"encoding/json"

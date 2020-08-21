@@ -1,14 +1,14 @@
-package sudoku
+package puzzle
 
 import (
 	"testing"
 )
 
-func TestEasyyPuzzle(t *testing.T) {
-	testNewPuzzleFromStateFile(t, "./easy.json")
+func TestEasyPuzzle(t *testing.T) {
+	testNewPuzzleFromStateFile(t, "./fixtures/easy.json")
 }
 func TestHardPuzzle(t *testing.T) {
-	testNewPuzzleFromStateFile(t, "./hard.json")
+	testNewPuzzleFromStateFile(t, "./fixtures/hard.json")
 }
 
 func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
@@ -23,8 +23,14 @@ func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
 		t.Fatal(err)
 	}
 
+	var finalDepth int
 	if !p.IsSolved() {
-		t.Error("Puzzle was not solved...")
+		t.Log("attempting recursive solve")
+		p, finalDepth, err = SolveRecursively(p, 0)
+		if err != nil {
+			t.Error(err)
+		}
+		t.Logf("finalDepth: %d", finalDepth)
 	}
 
 	afterSolveState, _ := p.State()
@@ -32,10 +38,10 @@ func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
 }
 
 func BenchmarkEasyyPuzzle(b *testing.B) {
-	benchmarkNewPuzzleFromStateFile(b, "./easy.json")
+	benchmarkNewPuzzleFromStateFile(b, "./fixtures/easy.json")
 }
 func BenchmarkHardPuzzle(b *testing.B) {
-	benchmarkNewPuzzleFromStateFile(b, "./hard.json")
+	benchmarkNewPuzzleFromStateFile(b, "./fixtures/hard.json")
 }
 
 func benchmarkNewPuzzleFromStateFile(b *testing.B, stateFile string) {
@@ -48,7 +54,7 @@ func benchmarkNewPuzzleFromStateFile(b *testing.B, stateFile string) {
 		var p *Puzzle
 		for pb.Next() {
 			p, _ = NewPuzzleFromState(state)
+			p, _, _ = SolveRecursively(p, 0)
 		}
-		p = p
 	})
 }

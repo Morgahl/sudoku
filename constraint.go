@@ -1,4 +1,4 @@
-package sudoku
+package puzzle
 
 type Constraint struct {
 	view        []*Cell
@@ -58,7 +58,6 @@ func BoxConstraint(p *Puzzle, x, y uint8) (*Constraint, error) {
 	}
 
 	return &Constraint{
-		view:        constrained,
 		constrained: constrained,
 		trigger:     StaticTrigger,
 	}, nil
@@ -90,7 +89,6 @@ func RowConstraint(p *Puzzle, y uint8) (*Constraint, error) {
 	}
 
 	return &Constraint{
-		view:        constrained,
 		constrained: constrained,
 		trigger:     StaticTrigger,
 	}, nil
@@ -122,15 +120,14 @@ func ColumnConstraint(p *Puzzle, x uint8) (*Constraint, error) {
 	}
 
 	return &Constraint{
-		view:        constrained,
 		constrained: constrained,
 		trigger:     StaticTrigger,
 	}, nil
 }
 
-func (c *Constraint) Solved(cell *Cell) (changed bool, _ error) {
+func (c *Constraint) Solved(cell *Cell) error {
 	if c.solved {
-		return changed, nil // no change
+		return nil // no change
 	}
 
 	for _, constrained := range c.constrained {
@@ -138,36 +135,30 @@ func (c *Constraint) Solved(cell *Cell) (changed bool, _ error) {
 			continue
 		}
 
-		cellChanged, err := cell.Clear([]uint8{cell.val})
-		changed = changed || cellChanged
-		if err != nil {
-			return changed, err
+		if err := cell.Clear([]uint8{cell.val}); err != nil {
+			return err
 		}
 	}
 
 	valuesToClear, cellsToClear := c.trigger(c.view, c.constrained)
 	if len(cellsToClear) > 0 {
 		for _, cellToClear := range cellsToClear {
-			cellChanged, err := cellToClear.Clear(valuesToClear)
-			changed = changed || cellChanged
-			if err != nil {
-				return changed, err
+			if err := cellToClear.Clear(valuesToClear); err != nil {
+				return err
 			}
 		}
 	}
 
-	if changed {
-		count := 0
-		for _, constrainedCell := range c.constrained {
-			if constrainedCell.solved {
-				count++
-			}
-		}
-
-		if count == len(c.constrained) {
-			c.solved = true
+	count := 0
+	for _, constrainedCell := range c.constrained {
+		if constrainedCell.solved {
+			count++
 		}
 	}
 
-	return changed, nil
+	if count == len(c.constrained) {
+		c.solved = true
+	}
+
+	return nil
 }

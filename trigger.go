@@ -1,4 +1,4 @@
-package sudoku
+package puzzle
 
 type Trigger func(view, constrained []*Cell) (valuesToClear []uint8, cellsToClear []*Cell)
 

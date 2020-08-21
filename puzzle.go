@@ -1,4 +1,4 @@
-package sudoku
+package puzzle
 
 import (
 	"errors"
@@ -11,10 +11,10 @@ type Puzzle struct {
 	constraints []*Constraint
 }
 
-func NewPuzzle(dim uint8) (p *Puzzle, err error) {
+func NewPuzzle(boxStride uint8) (p *Puzzle, err error) {
 	p = &Puzzle{
-		stride:    dim * dim,
-		boxStride: dim,
+		stride:    boxStride * boxStride,
+		boxStride: boxStride,
 	}
 
 	p.cells = BuildPuzzleCells(p)
@@ -121,6 +121,20 @@ func (p Puzzle) IsSolved() bool {
 	}
 
 	return true
+}
+
+func (p Puzzle) Copy() (np *Puzzle, err error) {
+	np, err = NewPuzzle(p.boxStride)
+	if err != nil {
+		return nil, err
+	}
+	for i := range np.cells {
+		if cell := p.cells[i]; cell.solved {
+			np.cells[i].Solve(cell.val)
+		}
+	}
+
+	return np, nil
 }
 
 var PuzzleErrorInvalidCell = errors.New("puzzle: Requested Cell is Invalid")

@@ -1,4 +1,4 @@
-package sudoku
+package puzzle
 
 func NewValueSet(valueCount uint8) (vs []bool) {
 	vs = make([]bool, valueCount)

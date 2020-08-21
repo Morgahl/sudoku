@@ -1,30 +1,39 @@
-package sudoku
+package puzzle
 
 import (
 	"errors"
 )
 
 type Cell struct {
+	x      uint8
+	y      uint8
+	val    uint8
+	solved bool
+	vals   []bool
+
 	constrainedMemberOf []*Constraint
 	viewMemberOf        []*Constraint
-	val                 uint8
-	solved              bool
-	vals                []bool
 }
 
 func BuildPuzzleCells(p *Puzzle) (cells []*Cell) {
 	cells = make([]*Cell, p.stride*p.stride)
-	for i := range cells {
-		cells[i] = NewCell(p.stride)
+	for y := uint8(0); y < p.stride; y++ {
+		for x := uint8(0); x < p.stride; x++ {
+			cells[(y*p.stride)+x] = NewCell(x, y, p.stride)
+		}
 	}
 
 	return
 }
 
-func NewCell(valCount uint8) *Cell {
+func NewCell(x, y, valCount uint8) *Cell {
 	return &Cell{
 		vals: NewValueSet(valCount),
 	}
+}
+
+func (c *Cell) Position() (uint8, uint8) {
+	return c.x, c.y
 }
 
 func (c *Cell) Solve(val uint8) error {
@@ -34,13 +43,15 @@ func (c *Cell) Solve(val uint8) error {
 
 	c.solved = true
 	c.val = val
-	for i := range c.vals {
-		c.vals[i] = false
-	}
+	c.vals = nil
 
-	c.vals[val] = true
 	for _, constraint := range c.constrainedMemberOf {
-		if _, err := constraint.Solved(c); err != nil {
+		if err := constraint.Solved(c); err != nil {
+			return err
+		}
+	}
+	for _, constraint := range c.viewMemberOf {
+		if err := constraint.Solved(c); err != nil {
 			return err
 		}
 	}
@@ -48,45 +59,48 @@ func (c *Cell) Solve(val uint8) error {
 	return nil
 }
 
-func (c *Cell) Clear(valuesToClear []uint8) (changed bool, _ error) {
+func (c *Cell) Clear(valuesToClear []uint8) error {
 	if c.solved {
-		return changed, nil // no change
+		return nil // no change
 	}
 
 	for _, val := range valuesToClear {
 		if c.vals[val] {
 			c.vals[val] = false
-			changed = true
 		}
 	}
 
-	if changed {
-		count := 0
-		idx := -1
-		for i, val := range c.vals {
-			if val {
-				count++
-				idx = i
-			}
-		}
-
-		switch count {
-		case 0:
-			return changed, CellErrorAllValuesCleared
-		case 1:
-			c.solved = true
-			c.val = uint8(idx)
-			for _, constraint := range c.constrainedMemberOf {
-				constraintChanged, err := constraint.Solved(c)
-				changed = changed || constraintChanged
-				if err != nil {
-					return changed, err
-				}
+	count := 0
+	idx := uint8(0)
+	for i, val := range c.vals {
+		if val {
+			count++
+			idx = uint8(i)
+			if count > 1 {
+				return nil
 			}
 		}
 	}
 
-	return changed, nil
+	switch count {
+	case 0:
+		return CellErrorAllValuesCleared
+	case 1:
+		return c.Solve(idx)
+	}
+
+	return nil
+}
+
+func (c Cell) ValuesCount() []uint8 {
+	vals := make([]uint8, 0, len(c.vals))
+	for i, exists := range c.vals {
+		if exists {
+			vals = append(vals, uint8(i))
+		}
+	}
+
+	return vals
 }
 
 var CellErrorAllValuesCleared = errors.New("cell: All Values Cleared: Likely indicates an invalid Puzzle.")
