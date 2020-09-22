@@ -88,10 +88,6 @@ func (p *Puzzle) ApplyConstraint(constraint *Constraint) error {
 		cell.constrainedMemberOf = append(cell.constrainedMemberOf, constraint)
 	}
 
-	for _, cell := range constraint.view {
-		cell.viewMemberOf = append(cell.viewMemberOf, constraint)
-	}
-
 	return nil
 }
 

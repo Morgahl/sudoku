@@ -1,7 +1,6 @@
 package puzzle
 
 type Constraint struct {
-	view        []*Cell
 	constrained []*Cell
 	trigger     Trigger
 	solved      bool
@@ -47,7 +46,7 @@ func BuildBoxConstraints(p *Puzzle) (constraints []*Constraint, err error) {
 func BoxConstraint(p *Puzzle, x, y uint8) (*Constraint, error) {
 	constrained := make([]*Cell, 0, p.stride)
 	for sy := y; sy < y+p.boxStride; sy++ {
-		for sx := x + (sy - y); sx < x+p.boxStride; x++ {
+		for sx := x; sx < x+p.boxStride; sx++ {
 			cell, err := p.At(uint8(sx), sy)
 			if err != nil {
 				return nil, err
@@ -140,7 +139,7 @@ func (c *Constraint) Solved(cell *Cell) error {
 		}
 	}
 
-	valuesToClear, cellsToClear := c.trigger(c.view, c.constrained)
+	valuesToClear, cellsToClear := c.trigger(c.constrained)
 	if len(cellsToClear) > 0 {
 		for _, cellToClear := range cellsToClear {
 			if err := cellToClear.Clear(valuesToClear); err != nil {

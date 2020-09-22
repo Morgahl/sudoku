@@ -5,35 +5,28 @@ import (
 )
 
 type Cell struct {
-	x      uint8
-	y      uint8
 	val    uint8
 	solved bool
 	vals   []bool
 
 	constrainedMemberOf []*Constraint
-	viewMemberOf        []*Constraint
 }
 
 func BuildPuzzleCells(p *Puzzle) (cells []*Cell) {
 	cells = make([]*Cell, p.stride*p.stride)
 	for y := uint8(0); y < p.stride; y++ {
 		for x := uint8(0); x < p.stride; x++ {
-			cells[(y*p.stride)+x] = NewCell(x, y, p.stride)
+			cells[(y*p.stride)+x] = NewCell(p.stride)
 		}
 	}
 
 	return
 }
 
-func NewCell(x, y, valCount uint8) *Cell {
+func NewCell(valCount uint8) *Cell {
 	return &Cell{
 		vals: NewValueSet(valCount),
 	}
-}
-
-func (c *Cell) Position() (uint8, uint8) {
-	return c.x, c.y
 }
 
 func (c *Cell) Solve(val uint8) error {
@@ -46,11 +39,6 @@ func (c *Cell) Solve(val uint8) error {
 	c.vals = nil
 
 	for _, constraint := range c.constrainedMemberOf {
-		if err := constraint.Solved(c); err != nil {
-			return err
-		}
-	}
-	for _, constraint := range c.viewMemberOf {
 		if err := constraint.Solved(c); err != nil {
 			return err
 		}
