@@ -4,9 +4,9 @@ import (
 	"errors"
 )
 
-func SolveRecursively(p *Puzzle, depth int) (np *Puzzle, finalDepth int, err error) {
+func Solve(p *Puzzle) (np *Puzzle, err error) {
 	if p.IsSolved() {
-		return p, depth, nil
+		return p, nil
 	}
 
 	// find first cell with lowest count to solve
@@ -27,19 +27,18 @@ func SolveRecursively(p *Puzzle, depth int) (np *Puzzle, finalDepth int, err err
 	for _, val := range vals {
 		np, err = p.Copy()
 		if err != nil {
-			return nil, depth, err
+			return nil, err
 		}
 
 		cell := np.cells[idx]
 		cell.Solve(val)
-		if np, finalDepth, err = SolveRecursively(np, depth+1); err == nil {
-			return np, finalDepth, nil
+		if np, err = Solve(np); err == nil {
+			return np, nil
 		}
-		return nil, depth, err
 	}
 
 	// return failed to solve error as this cannot be solved on this path
-	return nil, depth, PuzzleErrorInvalidSolution
+	return nil, PuzzleErrorInvalidSolution
 }
 
 var PuzzleErrorInvalidSolution = errors.New("puzzle: Puzzle Solution is Invalid")

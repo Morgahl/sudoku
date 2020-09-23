@@ -23,14 +23,12 @@ func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
 		t.Fatal(err)
 	}
 
-	var finalDepth int
 	if !p.IsSolved() {
 		t.Log("attempting recursive solve")
-		p, finalDepth, err = SolveRecursively(p, 0)
+		p, err = Solve(p)
 		if err != nil {
 			t.Error(err)
 		}
-		t.Logf("finalDepth: %d", finalDepth)
 	}
 
 	afterSolveState, _ := p.State()
@@ -54,7 +52,7 @@ func benchmarkNewPuzzleFromStateFile(b *testing.B, stateFile string) {
 		var p *Puzzle
 		for pb.Next() {
 			p, _ = NewPuzzleFromState(state)
-			p, _, _ = SolveRecursively(p, 0)
+			p, _ = Solve(p)
 		}
 	})
 }
