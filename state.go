@@ -9,7 +9,7 @@ import (
 
 // State ...
 type State struct {
-	Dim    uint8     `json:"dim"`
+	Dim    uint      `json:"dim"`
 	Puzzle [][]uint8 `json:"puzzle"`
 }
 
@@ -29,11 +29,11 @@ func (s State) String() string {
 	stride := boxStride * boxStride
 	sb := new(strings.Builder)
 	sb.WriteString("\n--------------------------------\n")
-	for y := uint8(0); y < stride; y += boxStride {
+	for y := uint(0); y < stride; y += boxStride {
 		for by := y; by < y+boxStride; by++ {
 			row := s.Puzzle[by]
 			sb.WriteString("| ")
-			for x := uint8(0); x < stride; x += boxStride {
+			for x := uint(0); x < stride; x += boxStride {
 				for bx := x; bx < x+boxStride; bx++ {
 					fmt.Fprintf(sb, "%0.2X ", row[bx])
 				}

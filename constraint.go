@@ -29,8 +29,8 @@ func BuildPuzzleConstraints(p *Puzzle) (allConstraints []*Constraint, err error)
 func BuildBoxConstraints(p *Puzzle) (constraints []*Constraint, err error) {
 	constraints = make([]*Constraint, 0, p.stride)
 	var constraint *Constraint
-	for y := uint8(0); y < p.stride; y += p.boxStride {
-		for x := uint8(0); x < p.stride; x += p.boxStride {
+	for y := uint(0); y < p.stride; y += p.boxStride {
+		for x := uint(0); x < p.stride; x += p.boxStride {
 			if constraint, err = BoxConstraint(p, x, y); err != nil {
 				return
 			}
@@ -42,11 +42,11 @@ func BuildBoxConstraints(p *Puzzle) (constraints []*Constraint, err error) {
 	return
 }
 
-func BoxConstraint(p *Puzzle, x, y uint8) (*Constraint, error) {
+func BoxConstraint(p *Puzzle, x, y uint) (*Constraint, error) {
 	constrained := make([]*Cell, 0, p.stride)
 	for sy := y; sy < y+p.boxStride; sy++ {
 		for sx := x; sx < x+p.boxStride; sx++ {
-			cell, err := p.At(uint8(sx), sy)
+			cell, err := p.At(sx, sy)
 			if err != nil {
 				return nil, err
 			}
@@ -64,7 +64,7 @@ func BoxConstraint(p *Puzzle, x, y uint8) (*Constraint, error) {
 func BuildRowConstraints(p *Puzzle) (constraints []*Constraint, err error) {
 	constraints = make([]*Constraint, 0, p.stride)
 	var constraint *Constraint
-	for y := uint8(0); y < p.stride; y++ {
+	for y := uint(0); y < p.stride; y++ {
 		if constraint, err = RowConstraint(p, y); err != nil {
 			return
 		}
@@ -75,10 +75,10 @@ func BuildRowConstraints(p *Puzzle) (constraints []*Constraint, err error) {
 	return
 }
 
-func RowConstraint(p *Puzzle, y uint8) (*Constraint, error) {
+func RowConstraint(p *Puzzle, y uint) (*Constraint, error) {
 	constrained := make([]*Cell, p.stride)
 	for x := range constrained {
-		cell, err := p.At(uint8(x), y)
+		cell, err := p.At(uint(x), y)
 		if err != nil {
 			return nil, err
 		}
@@ -95,8 +95,8 @@ func RowConstraint(p *Puzzle, y uint8) (*Constraint, error) {
 func BuildColumnConstraints(p *Puzzle) (constraints []*Constraint, err error) {
 	constraints = make([]*Constraint, 0, p.stride)
 	var constraint *Constraint
-	for x := uint8(0); x < p.stride; x++ {
-		if constraint, err = ColumnConstraint(p, uint8(x)); err != nil {
+	for x := uint(0); x < p.stride; x++ {
+		if constraint, err = ColumnConstraint(p, x); err != nil {
 			return
 		}
 
@@ -106,10 +106,10 @@ func BuildColumnConstraints(p *Puzzle) (constraints []*Constraint, err error) {
 	return
 }
 
-func ColumnConstraint(p *Puzzle, x uint8) (*Constraint, error) {
+func ColumnConstraint(p *Puzzle, x uint) (*Constraint, error) {
 	constrained := make([]*Cell, p.stride)
 	for y := range constrained {
-		cell, err := p.At(x, uint8(y))
+		cell, err := p.At(x, uint(y))
 		if err != nil {
 			return nil, err
 		}

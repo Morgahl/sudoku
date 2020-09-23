@@ -5,13 +5,13 @@ import (
 )
 
 type Puzzle struct {
-	stride      uint8
-	boxStride   uint8
+	stride      uint
+	boxStride   uint
 	cells       []*Cell
 	constraints []*Constraint
 }
 
-func NewPuzzle(boxStride uint8) (p *Puzzle, err error) {
+func NewPuzzle(boxStride uint) (p *Puzzle, err error) {
 	p = &Puzzle{
 		stride:    boxStride * boxStride,
 		boxStride: boxStride,
@@ -44,7 +44,7 @@ func NewPuzzleFromState(state State) (p *Puzzle, err error) {
 			// offset down into indexable representation
 			val--
 
-			p.Set(uint8(x), uint8(y), val)
+			p.Set(uint(x), uint(y), val)
 		}
 	}
 
@@ -55,9 +55,9 @@ func (p *Puzzle) State() (s State, err error) {
 	s.Dim = p.boxStride
 	s.Puzzle = make([][]uint8, p.stride)
 	var cell *Cell
-	for y := uint8(0); y < p.stride; y++ {
+	for y := uint(0); y < p.stride; y++ {
 		s.Puzzle[y] = make([]uint8, p.stride)
-		for x := uint8(0); x < p.stride; x++ {
+		for x := uint(0); x < p.stride; x++ {
 			if cell, err = p.At(x, y); err != nil {
 				return
 			}
@@ -89,7 +89,7 @@ func (p *Puzzle) ApplyConstraint(constraint *Constraint) {
 	return
 }
 
-func (p Puzzle) At(x, y uint8) (*Cell, error) {
+func (p Puzzle) At(x, y uint) (*Cell, error) {
 	idx := (y * p.stride) + x
 	if int(idx) >= len(p.cells) {
 		return nil, PuzzleErrorInvalidCell
@@ -98,7 +98,7 @@ func (p Puzzle) At(x, y uint8) (*Cell, error) {
 	return p.cells[idx], nil
 }
 
-func (p *Puzzle) Set(x, y, v uint8) (err error) {
+func (p *Puzzle) Set(x, y uint, v uint8) (err error) {
 	var cell *Cell
 	if cell, err = p.At(x, y); err != nil {
 		return

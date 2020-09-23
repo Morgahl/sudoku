@@ -14,8 +14,8 @@ type Cell struct {
 
 func BuildPuzzleCells(p *Puzzle) (cells []*Cell) {
 	cells = make([]*Cell, p.stride*p.stride)
-	for y := uint8(0); y < p.stride; y++ {
-		for x := uint8(0); x < p.stride; x++ {
+	for y := uint(0); y < p.stride; y++ {
+		for x := uint(0); x < p.stride; x++ {
 			cells[(y*p.stride)+x] = NewCell(p.stride)
 		}
 	}
@@ -23,7 +23,7 @@ func BuildPuzzleCells(p *Puzzle) (cells []*Cell) {
 	return
 }
 
-func NewCell(valCount uint8) *Cell {
+func NewCell(valCount uint) *Cell {
 	return &Cell{
 		vals: NewValueSet(valCount),
 	}
