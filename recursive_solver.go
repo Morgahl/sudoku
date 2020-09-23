@@ -35,7 +35,7 @@ func SolveRecursively(p *Puzzle, depth int) (np *Puzzle, finalDepth int, err err
 		if np, finalDepth, err = SolveRecursively(np, depth+1); err == nil {
 			return np, finalDepth, nil
 		}
-		panic(err)
+		return nil, depth, err
 	}
 
 	// return failed to solve error as this cannot be solved on this path

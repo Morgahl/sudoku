@@ -3,7 +3,6 @@ package puzzle
 type Constraint struct {
 	constrained []*Cell
 	trigger     Trigger
-	solved      bool
 }
 
 func BuildPuzzleConstraints(p *Puzzle) (allConstraints []*Constraint, err error) {
@@ -124,21 +123,7 @@ func ColumnConstraint(p *Puzzle, x uint8) (*Constraint, error) {
 	}, nil
 }
 
-func (c *Constraint) Solved(cell *Cell) error {
-	if c.solved {
-		return nil // no change
-	}
-
-	for _, constrained := range c.constrained {
-		if cell == constrained || constrained.solved {
-			continue
-		}
-
-		if err := cell.Clear([]uint8{cell.val}); err != nil {
-			return err
-		}
-	}
-
+func (c *Constraint) Propagate() error {
 	valuesToClear, cellsToClear := c.trigger(c.constrained)
 	if len(cellsToClear) > 0 {
 		for _, cellToClear := range cellsToClear {
@@ -146,17 +131,6 @@ func (c *Constraint) Solved(cell *Cell) error {
 				return err
 			}
 		}
-	}
-
-	count := 0
-	for _, constrainedCell := range c.constrained {
-		if constrainedCell.solved {
-			count++
-		}
-	}
-
-	if count == len(c.constrained) {
-		c.solved = true
 	}
 
 	return nil

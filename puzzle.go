@@ -25,9 +25,7 @@ func NewPuzzle(boxStride uint8) (p *Puzzle, err error) {
 	}
 
 	for _, constraint := range constraints {
-		if err = p.ApplyConstraint(constraint); err != nil {
-			return
-		}
+		p.ApplyConstraint(constraint)
 	}
 
 	return
@@ -75,10 +73,10 @@ func (p *Puzzle) State() (s State, err error) {
 	return
 }
 
-func (p *Puzzle) ApplyConstraint(constraint *Constraint) error {
+func (p *Puzzle) ApplyConstraint(constraint *Constraint) {
 	for _, existingConstraint := range p.constraints {
 		if existingConstraint == constraint {
-			return nil
+			return
 		}
 	}
 
@@ -88,7 +86,7 @@ func (p *Puzzle) ApplyConstraint(constraint *Constraint) error {
 		cell.constrainedMemberOf = append(cell.constrainedMemberOf, constraint)
 	}
 
-	return nil
+	return
 }
 
 func (p Puzzle) At(x, y uint8) (*Cell, error) {

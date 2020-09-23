@@ -35,7 +35,6 @@ func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
 
 	afterSolveState, _ := p.State()
 	t.Logf("End State:%s", afterSolveState)
-	// t.Fail()
 }
 
 func BenchmarkEasyyPuzzle(b *testing.B) {

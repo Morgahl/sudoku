@@ -39,7 +39,7 @@ func (c *Cell) Solve(val uint8) error {
 	c.vals = nil
 
 	for _, constraint := range c.constrainedMemberOf {
-		if err := constraint.Solved(c); err != nil {
+		if err := constraint.Propagate(); err != nil {
 			return err
 		}
 	}
