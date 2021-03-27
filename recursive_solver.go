@@ -1,4 +1,4 @@
-package puzzle
+package sudoku
 
 import (
 	"errors"
@@ -12,33 +12,26 @@ func Solve(p *Puzzle) (np *Puzzle, err error) {
 	// find first cell with lowest count to solve
 	idx := 0
 	lowestCount := 0
-	var vals []uint8
-	for i, cell := range p.cells {
-		if cell.solved {
+	var notes []uint
+	for i, c := range p.cells {
+		if c.solved {
 			continue
 		}
-		if vals = cell.ValuesCount(); len(vals) < lowestCount || lowestCount == 0 {
+		if notes = notesCount(c); len(notes) < lowestCount || lowestCount == 0 {
 			idx = i
-			lowestCount = len(vals)
+			lowestCount = len(notes)
 			continue
 		}
 	}
 
-	for _, val := range vals {
-		np, err = p.Copy()
-		if err != nil {
-			return nil, err
-		}
-
-		cell := np.cells[idx]
-		cell.Solve(val)
+	for _, note := range notes {
+		np = p.copy()
+		solveCell(np, np.cells[idx], note)
 		if np, err = Solve(np); err == nil {
 			return np, nil
 		}
 	}
 
 	// return failed to solve error as this cannot be solved on this path
-	return nil, PuzzleErrorInvalidSolution
+	return nil, errors.New("puzzle: Puzzle Solution is Invalid")
 }
-
-var PuzzleErrorInvalidSolution = errors.New("puzzle: Puzzle Solution is Invalid")

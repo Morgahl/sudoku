@@ -1,4 +1,4 @@
-package puzzle
+package sudoku
 
 import (
 	"encoding/json"
@@ -7,10 +7,9 @@ import (
 	"strings"
 )
 
-// State ...
 type State struct {
-	Dim    uint      `json:"dim"`
-	Puzzle [][]uint8 `json:"puzzle"`
+	Dim    uint     `json:"dim"`
+	Puzzle [][]uint `json:"puzzle"`
 }
 
 func LoadStateFromFile(path string) (s State, err error) {

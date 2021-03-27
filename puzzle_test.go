@@ -1,7 +1,9 @@
-package puzzle
+package sudoku_test
 
 import (
 	"testing"
+
+	"github.com/curlymon/sudoku"
 )
 
 func TestEasyPuzzle(t *testing.T) {
@@ -12,22 +14,22 @@ func TestHardPuzzle(t *testing.T) {
 }
 
 func testNewPuzzleFromStateFile(t *testing.T, stateFile string) {
-	state, err := LoadStateFromFile(stateFile)
+	state, err := sudoku.LoadStateFromFile(stateFile)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("Start State:%s", state)
+	t.Logf("Start State:\n%s", state)
 
-	p, err := NewPuzzleFromState(state)
+	p, err := sudoku.NewPuzzleFromState(state)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if !p.IsSolved() {
 		t.Log("attempting recursive solve")
-		p, err = Solve(p)
+		p, err = sudoku.Solve(p)
 		if err != nil {
-			t.Error(err)
+			t.Errorf("error solving: %s\n%v", err, p)
 		}
 	}
 
@@ -43,16 +45,16 @@ func BenchmarkHardPuzzle(b *testing.B) {
 }
 
 func benchmarkNewPuzzleFromStateFile(b *testing.B, stateFile string) {
-	state, err := LoadStateFromFile(stateFile)
+	state, err := sudoku.LoadStateFromFile(stateFile)
 	if err != nil {
 		b.Fatal(err)
 	}
 
 	b.RunParallel(func(pb *testing.PB) {
-		var p *Puzzle
+		var p *sudoku.Puzzle
 		for pb.Next() {
-			p, _ = NewPuzzleFromState(state)
-			p, _ = Solve(p)
+			p, _ = sudoku.NewPuzzleFromState(state)
+			p, _ = sudoku.Solve(p)
 		}
 	})
 }

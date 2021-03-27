@@ -1,68 +1,91 @@
-package puzzle
+package sudoku
 
 import (
 	"errors"
+	"math"
 )
 
 type Puzzle struct {
-	stride      uint
-	boxStride   uint
-	cells       []*Cell
-	constraints []*Constraint
+	stride    uint
+	boxstride uint
+	cells     []*Cell
 }
 
-func NewPuzzle(boxStride uint) (p *Puzzle, err error) {
-	p = &Puzzle{
-		stride:    boxStride * boxStride,
-		boxStride: boxStride,
+func New(n uint) *Puzzle {
+	cells := make([]*Cell, n*n)
+	for y := uint(0); y < n; y++ {
+		for x := uint(0); x < n; x++ {
+			cells[y*n+x] = newCell(x, y, n)
+		}
 	}
 
-	p.cells = BuildPuzzleCells(p)
-
-	var constraints []*Constraint
-	if constraints, err = BuildPuzzleConstraints(p); err != nil {
-		return
+	return &Puzzle{
+		stride:    n,
+		boxstride: uint(math.Sqrt(float64(n))),
+		cells:     cells,
 	}
-
-	for _, constraint := range constraints {
-		p.ApplyConstraint(constraint)
-	}
-
-	return
 }
 
-func NewPuzzleFromState(state State) (p *Puzzle, err error) {
-	if p, err = NewPuzzle(state.Dim); err != nil {
-		return
-	}
-
-	for y, row := range state.Puzzle {
-		for x, val := range row {
-			if val == 0 {
-				continue
+func NewPuzzleFromState(s State) (p *Puzzle, err error) {
+	p = New(s.Dim)
+	for y := uint(0); y < s.Dim; y++ {
+		for x := uint(0); x < s.Dim; x++ {
+			if v := s.Puzzle[y][x]; v > 0 {
+				v-- // offset down into indexable representation
+				p.SolveCell(x, y, v)
 			}
-			// offset down into indexable representation
-			val--
-
-			p.Set(uint(x), uint(y), val)
 		}
 	}
 
 	return
 }
 
+func (p *Puzzle) SolveCell(x, y, v uint) error {
+	return solveCell(p, getCell(p, x, y), v)
+}
+
+func (p *Puzzle) IsSolved() bool {
+	for _, cell := range p.cells {
+		if !cell.solved {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (p Puzzle) At(x, y uint) (*Cell, error) {
+	idx := (y * p.stride) + x
+	if int(idx) >= len(p.cells) {
+		return nil, errors.New("requested cell is invalid")
+	}
+
+	return p.cells[idx], nil
+}
+
+func (p *Puzzle) copy() *Puzzle {
+	cells := make([]*Cell, len(p.cells))
+	for i, cell := range p.cells {
+		cells[i] = cell.copy()
+	}
+
+	return &Puzzle{
+		stride:    p.stride,
+		boxstride: p.boxstride,
+		cells:     cells,
+	}
+}
+
 func (p *Puzzle) State() (s State, err error) {
-	s.Dim = p.boxStride
-	s.Puzzle = make([][]uint8, p.stride)
-	var cell *Cell
+	s.Dim = p.stride
+	s.Puzzle = make([][]uint, p.stride)
+	var c *Cell
 	for y := uint(0); y < p.stride; y++ {
-		s.Puzzle[y] = make([]uint8, p.stride)
+		s.Puzzle[y] = make([]uint, p.stride)
 		for x := uint(0); x < p.stride; x++ {
-			if cell, err = p.At(x, y); err != nil {
-				return
-			}
-			val := cell.val
-			if cell.solved {
+			c = getCell(p, x, y)
+			val := c.value
+			if c.solved {
 				// offset up into human representation
 				val++
 			}
@@ -72,63 +95,3 @@ func (p *Puzzle) State() (s State, err error) {
 
 	return
 }
-
-func (p *Puzzle) ApplyConstraint(constraint *Constraint) {
-	for _, existingConstraint := range p.constraints {
-		if existingConstraint == constraint {
-			return
-		}
-	}
-
-	p.constraints = append(p.constraints, constraint)
-
-	for _, cell := range constraint.constrained {
-		cell.constrainedMemberOf = append(cell.constrainedMemberOf, constraint)
-	}
-
-	return
-}
-
-func (p Puzzle) At(x, y uint) (*Cell, error) {
-	idx := (y * p.stride) + x
-	if int(idx) >= len(p.cells) {
-		return nil, PuzzleErrorInvalidCell
-	}
-
-	return p.cells[idx], nil
-}
-
-func (p *Puzzle) Set(x, y uint, v uint8) (err error) {
-	var cell *Cell
-	if cell, err = p.At(x, y); err != nil {
-		return
-	}
-
-	return cell.Solve(v)
-}
-
-func (p Puzzle) IsSolved() bool {
-	for i := range p.cells {
-		if !p.cells[i].solved {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (p Puzzle) Copy() (np *Puzzle, err error) {
-	np, err = NewPuzzle(p.boxStride)
-	if err != nil {
-		return nil, err
-	}
-	for i := range np.cells {
-		if cell := p.cells[i]; cell.solved {
-			np.cells[i].Solve(cell.val)
-		}
-	}
-
-	return np, nil
-}
-
-var PuzzleErrorInvalidCell = errors.New("puzzle: Requested Cell is Invalid")
