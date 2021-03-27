@@ -1,7 +1,6 @@
 package sudoku
 
 import (
-	"errors"
 	"math"
 )
 
@@ -52,15 +51,6 @@ func (p *Puzzle) IsSolved() bool {
 	}
 
 	return true
-}
-
-func (p Puzzle) At(x, y uint) (*Cell, error) {
-	idx := (y * p.stride) + x
-	if int(idx) >= len(p.cells) {
-		return nil, errors.New("requested cell is invalid")
-	}
-
-	return p.cells[idx], nil
 }
 
 func (p *Puzzle) copy() *Puzzle {
